@@ -23,7 +23,7 @@ import { default as stringify } from "csv-stringify";
 import { fetchAndSaveDataFromS3 } from "../src/s3Downloader";
 
 describe("s3Downloader Test Suite", () => {
-  test("Should download files with success", (done) => {
+  test("Should download files with success", async () => {
     const [mockedStreamOne, mockedStreamTwo] = [
       new PassThrough(),
       new PassThrough(),
@@ -50,7 +50,7 @@ describe("s3Downloader Test Suite", () => {
         })
     );
 
-    fetchAndSaveDataFromS3({
+    const promise = fetchAndSaveDataFromS3({
       bucket: "testBucket",
       rootDir: "testDir",
     });
@@ -66,8 +66,9 @@ describe("s3Downloader Test Suite", () => {
         },
         expect.anything()
       );
-      done();
     }, 1000);
+
+    await promise;
   });
 
   test("Should download files with errors", async () => {

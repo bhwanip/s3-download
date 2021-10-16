@@ -31,7 +31,7 @@ async function uploadTestData(
   for (const fileName of files) {
     const filePath = path.join(directory, fileName);
 
-    // ignore if directory
+    // recursive if directory
     if (fs.lstatSync(filePath).isDirectory()) {
       await uploadTestData(filePath, s3Keys);
       continue;
