@@ -70,11 +70,6 @@ async function verifyReportContents(
     .map((value) => value.split(",")[0].trim())
     .filter(Boolean);
 
-  console.log({
-    decryptedContent: reportItems,
-    s3Keys,
-  });
-
   expect(s3Keys.length).toBe(reportItems.length);
 
   expect(s3Keys.sort()).toEqual(reportItems.sort());
