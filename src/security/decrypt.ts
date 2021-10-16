@@ -20,13 +20,13 @@ function decryptAES(key: Uint8Array, encryptedContent: Buffer) {
 export async function decryptFile(
   {
     rootDir = process.cwd(),
-    downloadFolderName = process.argv[2],
+    downloadFolder = process.argv[2],
   }: {
     rootDir: string;
-    downloadFolderName: string;
+    downloadFolder: string;
   } = Object.create(null)
-) {
-  const downloadFolderPath = path.join(rootDir, downloadFolderName);
+): Promise<string> {
+  const downloadFolderPath = path.join(rootDir, downloadFolder);
 
   const encryptedContent = await fs.readFile(
     path.join(downloadFolderPath, "report.csv")
@@ -47,10 +47,12 @@ export async function decryptFile(
   //making the plain text data key null
   clearKey(plainTextKey);
 
+  const decryptFileName = "report_decrypted.csv";
+
   await fs.writeFile(
-    path.join(downloadFolderPath, "report_decrypted.csv"),
+    path.join(downloadFolderPath, decryptFileName),
     result
   );
-}
 
-// decryptFile().then(() => console.log("===========DONE============"));
+  return decryptFileName;
+}

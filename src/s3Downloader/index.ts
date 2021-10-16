@@ -1,8 +1,8 @@
 import { Promise as BlueBirdPromise } from "bluebird";
+import { default as stringify } from "csv-stringify";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { s3Client } from "../aws-clients";
-import { reporter, initReporter } from "./reporter";
 
 export async function fetchAndSaveDataFromS3({
   bucket,
@@ -10,17 +10,19 @@ export async function fetchAndSaveDataFromS3({
 }: {
   bucket: string;
   rootDir?: string;
-}): Promise<string> {
-  const downloadFolderPath = path.join(rootDir, `downloads_${Date.now()}`);
+}): Promise<{ downloadFolder: string }> {
+  const downloadFolder = `downloads_${Date.now()}`;
+  const downloadFolderPath = path.join(rootDir, downloadFolder);
   const reportPath = path.join(downloadFolderPath, "report.csv");
-  
-  let count = 0;
+
+  const records = new Array<{
+    key: string;
+    status: "error" | "success";
+  }>();
 
   const { Contents: objectsList } = await s3Client
     .listObjects({ Bucket: bucket })
     .promise();
-
-  initReporter({ reportPath });
 
   await BlueBirdPromise.map(
     objectsList,
@@ -32,31 +34,39 @@ export async function fetchAndSaveDataFromS3({
 
       const file = fs.createWriteStream(filePath);
 
-      s3Client
-        .getObject({
-          Bucket: bucket,
-          Key: key,
-        })
-        .createReadStream()
-        .pipe(file)
-        .on("error", (err: Object) => {
-          console.error(`FAILED to download: ${key}`, err);
-          reporter.write([key, "error"]);
-        })
-        .on("finish", () => {
-          console.error(`COMPLETED download of ${key}`);
-          reporter.write([key, "success"]);
-          if (count++ == objectsList.length - 1) {
-            reporter.end();
-          }
-        });
+      return new BlueBirdPromise((resolve) => {
+        s3Client
+          .getObject({
+            Bucket: bucket,
+            Key: key,
+          })
+          .createReadStream()
+          .pipe(file)
+          .on("error", (err: Object) => {
+            console.error(`FAILED to download: ${key}`, err);
+            records.push({ key, status: "error" });
+            resolve();
+          })
+          .on("finish", () => {
+            console.error(`COMPLETED download of ${key}`);
+            records.push({ key, status: "success" });
+            resolve();
+          });
+      });
     },
     { concurrency: 4 }
   );
 
   return new Promise((resolve) => {
-    reporter.on("finish", () => {
-      resolve(reportPath);
-    });
+    stringify(
+      records,
+      {
+        delimiter: ","
+      },
+      async function (_, output) {
+        await fs.writeFile(reportPath, output, "utf8");
+        resolve({ downloadFolder });
+      }
+    );
   });
 }

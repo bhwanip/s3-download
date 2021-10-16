@@ -4,6 +4,7 @@ import { config } from "../config";
 import { kmsClient } from "../aws-clients";
 import { algorithm, iv } from "./constants";
 import { clearKey } from "./clearKey";
+import path from "path";
 
 function encryptAES(key: Uint8Array, dataBuffer: Buffer) {
   const cipher = crypto.createCipheriv(algorithm, key, iv);
@@ -20,8 +21,12 @@ async function generateDataKey() {
 
   return await kmsClient.generateDataKey(params).promise();
 }
-export async function encryptFile(filePath: string) {
-  const content = await fs.readFile(filePath);
+export async function encryptFile(downLoadFolder: string, rootDir: string) {
+  
+  const downloadFolderPath = path.join(rootDir, downLoadFolder);
+  const reportPath = path.join(downloadFolderPath, "report.csv");
+
+  const content = await fs.readFile(reportPath);
 
   const { Plaintext: plainTextKey, CiphertextBlob: encryptionKey } =
     (await generateDataKey()) as {
@@ -35,7 +40,7 @@ export async function encryptFile(filePath: string) {
   clearKey(plainTextKey);
 
   return await Promise.all([
-    fs.writeFile(filePath, encryptedContent),
-    fs.writeFile(`${filePath}.key`, encryptionKey),
+    fs.writeFile(reportPath, encryptedContent),
+    fs.writeFile(`${reportPath}.key`, encryptionKey),
   ]);
 }
