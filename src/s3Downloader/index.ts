@@ -1,8 +1,9 @@
 import { Promise as BlueBirdPromise } from "bluebird";
-import { default as stringify } from "csv-stringify";
+import { default as csvStringify } from "csv-stringify";
 import * as fs from "fs-extra";
 import * as path from "path";
-import { s3Client } from "../aws-clients";
+import AWS from "aws-sdk";
+import { config } from "../config";
 
 export async function fetchAndSaveDataFromS3({
   bucket,
@@ -19,6 +20,7 @@ export async function fetchAndSaveDataFromS3({
     key: string;
     status: "error" | "success";
   }>();
+  const s3Client = new AWS.S3({ region: config.region });
 
   const { Contents: objectsList } = await s3Client
     .listObjects({ Bucket: bucket })
@@ -58,10 +60,10 @@ export async function fetchAndSaveDataFromS3({
   );
 
   return new Promise((resolve) => {
-    stringify(
+    csvStringify(
       records,
       {
-        delimiter: ","
+        delimiter: ",",
       },
       async function (_, output) {
         await fs.writeFile(reportPath, output, "utf8");
