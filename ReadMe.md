@@ -14,6 +14,7 @@
 * Set up env variables `AWS_REGION` and your AWS CMK key id as `AWS_KMS_KEY_ID`
 * You can also set these in `src/config/index.ts`
  
+ ## Functions/API
 #### downloadS3Data({ rootDir })
 * The `rootDir` defaults to your current working directory. 
 * It will create a folder `downloads_<timeInMills>`   
