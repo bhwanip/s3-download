@@ -50,7 +50,7 @@ export async function fetchAndSaveDataFromS3({
             resolve();
           })
           .on("finish", () => {
-            console.error(`COMPLETED download of ${key}`);
+            console.log(`COMPLETED download of ${key}`);
             records.push({ key, status: "success" });
             resolve();
           });

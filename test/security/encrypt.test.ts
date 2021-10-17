@@ -11,10 +11,14 @@ jest.mock("fs-extra", () => ({
 
 jest.mock("crypto", () => ({
   createCipheriv: jest.fn().mockReturnValue({
-    update: jest.fn().mockReturnValue(Buffer.from("update")),
-    final: jest.fn().mockReturnValue(Buffer.from("final")),
+    update: jest.fn().mockReturnValue(Buffer.from("content")),
+    final: jest.fn().mockReturnValue(Buffer.from("end")),
   }),
 }));
+
+afterAll(() => {
+  jest.resetAllMocks();
+});
 
 import { encryptFile } from "../../src/security/index";
 import * as fs from "fs-extra";
@@ -23,7 +27,7 @@ import * as crypto from "crypto";
 describe("security/encrypt.ts", () =>
   test("should encrypt file", async () => {
     const testPlainKey = Buffer.from("ABC");
-    const testCipherKey = Buffer.from("abc");
+    const testCipherKey = Buffer.from("cipherText");
 
     AWSMock.mock(
       "KMS",
@@ -47,11 +51,11 @@ describe("security/encrypt.ts", () =>
     expect(fs.writeFile).toHaveBeenNthCalledWith(
       1,
       "root/downloads/report.csv",
-      Buffer.from("updatefinal")
+      Buffer.from("contentend")
     );
     expect(fs.writeFile).toHaveBeenNthCalledWith(
       2,
       "root/downloads/report.csv.key",
-      Buffer.from("abc")
+      Buffer.from("cipherText")
     );
   }));

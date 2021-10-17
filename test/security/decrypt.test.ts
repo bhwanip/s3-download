@@ -14,10 +14,14 @@ jest.mock("fs-extra", () => ({
 
 jest.mock("crypto", () => ({
   createDecipheriv: jest.fn().mockReturnValue({
-    update: jest.fn().mockReturnValue(Buffer.from("update")),
-    final: jest.fn().mockReturnValue(Buffer.from("final")),
+    update: jest.fn().mockReturnValue(Buffer.from("content")),
+    final: jest.fn().mockReturnValue(Buffer.from("end")),
   }),
 }));
+
+afterAll(() => {
+  jest.resetAllMocks();
+});
 
 import { decryptFile } from "../../src/security/index";
 import * as fs from "fs-extra";
@@ -48,6 +52,6 @@ describe("security/decrypt.ts", () =>
     expect(fs.writeFile).toHaveBeenNthCalledWith(
       1,
       "root/downloads/report_decrypted.csv",
-      Buffer.from("updatefinal")
+      Buffer.from("contentend")
     );
   }));

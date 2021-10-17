@@ -6,6 +6,13 @@ AWSMock.setSDKInstance(AWS);
 
 const mockWritableStream = new PassThrough();
 
+const log = console.log;
+console.log = jest.fn();
+
+const error = console.error;
+console.error = jest.fn();
+
+
 jest.mock("fs-extra", () => ({
   mkdir: jest.fn().mockResolvedValue({}),
   createWriteStream: jest.fn().mockReturnValue(mockWritableStream),
@@ -18,6 +25,13 @@ jest.mock("csv-stringify", () => ({
     cb();
   }),
 }));
+
+afterAll(() => {
+  console.log = log;
+  console.error = error;
+
+  jest.resetAllMocks();
+});
 
 import { default as stringify } from "csv-stringify";
 import { fetchAndSaveDataFromS3 } from "../src/s3Downloader";
