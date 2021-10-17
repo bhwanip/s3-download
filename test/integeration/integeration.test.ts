@@ -1,10 +1,11 @@
+import AWS from "aws-sdk";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { downloadS3Data, decryptFile } from "../../src";
-import { s3Client } from "../../src/aws-clients";
 import { config } from "../../src/config";
 
 const testDataFolder = path.join(__dirname, "testData");
+const s3Client = new AWS.S3({ region: config.region });
 
 describe("Integration test suite", () => {
   test("Integration test", async () => {

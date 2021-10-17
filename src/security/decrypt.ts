@@ -1,7 +1,7 @@
+import AWS from "aws-sdk";
 import * as crypto from "crypto";
 import * as fs from "fs-extra";
 import * as path from "path";
-import { kmsClient } from "../aws-clients";
 import { config } from "../config";
 import { clearKey } from "./clearKey";
 import { algorithm, iv } from "./constants";
@@ -19,12 +19,12 @@ function decryptAES(key: Uint8Array, encryptedContent: Buffer) {
 
 export async function decryptFile(
   {
-    rootDir = process.cwd(),
-    downloadFolder = process.argv[2],
+    rootDir,
+    downloadFolder,
   }: {
     rootDir: string;
     downloadFolder: string;
-  } = Object.create(null)
+  }
 ): Promise<string> {
   const downloadFolderPath = path.join(rootDir, downloadFolder);
 
@@ -34,6 +34,8 @@ export async function decryptFile(
   const encryptionKey = await fs.readFile(
     path.join(downloadFolderPath, "report.csv.key")
   );
+
+  const kmsClient = new AWS.KMS({ region: config.region });
 
   const { Plaintext: plainTextKey } = (await kmsClient
     .decrypt({

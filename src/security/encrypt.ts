@@ -1,7 +1,7 @@
+import AWS from "aws-sdk";
 import * as crypto from "crypto";
 import * as fs from "fs-extra";
 import { config } from "../config";
-import { kmsClient } from "../aws-clients";
 import { algorithm, iv } from "./constants";
 import { clearKey } from "./clearKey";
 import path from "path";
@@ -19,10 +19,11 @@ async function generateDataKey() {
     KeySpec: "AES_256", // Specifies the type of data key to return.
   };
 
+  const kmsClient = new AWS.KMS({ region: config.region });
+
   return await kmsClient.generateDataKey(params).promise();
 }
 export async function encryptFile(downLoadFolder: string, rootDir: string) {
-  
   const downloadFolderPath = path.join(rootDir, downLoadFolder);
   const reportPath = path.join(downloadFolderPath, "report.csv");
 
