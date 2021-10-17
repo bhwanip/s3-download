@@ -39,6 +39,13 @@ npm install
 npm run build
 ```
 
+### Linting/Prettier
+```
+npm run lint
+npm run lint:fix
+npm run format:code
+```
+
 ### Tests
 Run integration test, 
 * It will upload actual data from `test/integration/testData` to S3.
