@@ -42,7 +42,7 @@ npm run build
 Run integration test, 
 * It will upload actual data from `test/integration/testData` to S3.
 * Download s3 data, generate and encrypt report file.
-* Decrypt and then verify contents fo report file.
+* Decrypt and then verify contents of report file.
 ```
 npm run intg:test
 ```  
