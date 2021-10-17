@@ -12,7 +12,6 @@ console.log = jest.fn();
 const error = console.error;
 console.error = jest.fn();
 
-
 jest.mock("fs-extra", () => ({
   mkdir: jest.fn().mockResolvedValue({}),
   createWriteStream: jest.fn().mockReturnValue(mockWritableStream),

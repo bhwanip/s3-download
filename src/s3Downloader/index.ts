@@ -44,7 +44,7 @@ export async function fetchAndSaveDataFromS3({
           })
           .createReadStream()
           .pipe(file)
-          .on("error", (err: Object) => {
+          .on("error", (err) => {
             console.error(`FAILED to download: ${key}`, err);
             records.push({ key, status: "error" });
             resolve();

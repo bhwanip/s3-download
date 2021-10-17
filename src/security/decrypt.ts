@@ -17,15 +17,13 @@ function decryptAES(key: Uint8Array, encryptedContent: Buffer) {
   return result;
 }
 
-export async function decryptFile(
-  {
-    rootDir,
-    downloadFolder,
-  }: {
-    rootDir: string;
-    downloadFolder: string;
-  }
-): Promise<string> {
+export async function decryptFile({
+  rootDir,
+  downloadFolder,
+}: {
+  rootDir: string;
+  downloadFolder: string;
+}): Promise<string> {
   const downloadFolderPath = path.join(rootDir, downloadFolder);
 
   const encryptedContent = await fs.readFile(
@@ -51,10 +49,7 @@ export async function decryptFile(
 
   const decryptFileName = "report_decrypted.csv";
 
-  await fs.writeFile(
-    path.join(downloadFolderPath, decryptFileName),
-    result
-  );
+  await fs.writeFile(path.join(downloadFolderPath, decryptFileName), result);
 
   return decryptFileName;
 }
